@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Hadis Yarışması</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f1ea; text-align: center; padding: 20px; }
+        .box { background: white; max-width: 600px; margin: auto; padding: 30px; border-radius: 20px; border: 3px solid #b8860b; position: relative; }
+        .timer { width: 100%; height: 10px; background: #eee; margin: 20px 0; border-radius: 5px; overflow: hidden; }
+        #bar { height: 100%; background: #1b5e20; width: 100%; transition: width 0.1s linear; }
+        .btn { padding: 15px; margin: 5px; width: 45%; border: 2px solid #1b5e20; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        #pop { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80%; padding: 20px; display: none; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.2); z-index: 10; }
+    </style>
+</head>
+<body>
+    <div id="start">
+        <h1>HADİS-İ ŞERİF İLMİ</h1>
+        <button onclick="basla()" style="padding: 20px 40px; font-size: 1.5rem; background: #1b5e20; color: white; border: none; border-radius: 50px; cursor: pointer;">BAŞLA</button>
+    </div>
+    <div id="game" class="box" style="display:none;">
+        <div id="lv" style="font-weight:bold; color:#b8860b;">AŞAMA 1</div>
+        <div class="timer"><div id="bar"></div></div>
+        <div id="q-head" style="font-weight:bold; color:#666; margin-bottom:10px;"></div>
+        <div id="q-body" style="font-style:italic; font-size:1.3rem; margin-bottom:20px;"></div>
+        <div id="opts"></div>
+        <div id="pop"></div>
+    </div>
+<script>
+const data = [
+    {s:"Ameller neye bağlıdır?", h:"Ameller ancak _______ göredir.", d:"niyetlere", y:["şartlara","zamanlara","kişilere"], k:"Buhari, 1"},
+    {s:"Müslümanlık hukuku nedir?", h:"Müslüman, Müslümanın _______.", d:"kardeşidir", y:["dostudur","komşusudur","emanetidir"], k:"Müslim, 32"},
+    {s:"Temizlik nedir?", h:"Temizlik _______ yarısıdır.", d:"imanın", y:["huzurun","bereketin","sağlığın"], k:"Müslim, 1"}
+];
+let idx = 0, stage = 1, timer, lock = false;
+function basla() { document.getElementById('start').style.display='none'; document.getElementById('game').style.display='block'; next(); }
+function next() {
+    if(idx >= 10) { stage++; idx=0; if(stage>5) {alert("Tebrikler!"); location.reload();} }
+    lock = false; const h = data[Math.floor(Math.random()*data.length)];
+    document.getElementById('lv').innerText = "AŞAMA " + stage;
+    document.getElementById('q-head').innerText = h.s;
+    document.getElementById('q-body').innerText = h.h;
+    const o = document.getElementById('opts'); o.innerHTML = '';
+    [h.d, ...h.y].sort(()=>Math.random()-0.5).forEach(t => {
+        const b = document.createElement('button'); b.className='btn'; b.innerText=t;
+        b.onclick = () => check(t, h); o.appendChild(b);
+    });
+    runTimer();
+}
+function runTimer() {
+    clearInterval(timer); let s = 15-(stage*2); if(s<5) s=5; let t=s;
+    timer = setInterval(() => { s-=0.1; document.getElementById('bar').style.width=(s/t)*100+"%"; if(s<=0){check("SÜRE DOLDU",{d:""});} }, 100);
+}
+function check(v, h) {
+    if(lock) return; lock=true; clearInterval(timer);
+    const p = document.getElementById('pop'); p.style.display='block';
+    if(v===h.d) { p.style.background='#e8f5e9'; p.innerHTML="<b>DOĞRU!</b><br>"+h.k; setTimeout(()=>{p.style.display='none'; idx++; next();},1500); }
+    else { p.style.background='#ffebee'; p.innerHTML="<b>YANLIŞ!</b><br>Cevap: "+h.d; setTimeout(()=>{p.style.display='none'; next();},2000); }
+}
+</script>
+</body>
+</html>
